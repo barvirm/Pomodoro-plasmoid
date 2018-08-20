@@ -9,20 +9,33 @@ Item {
     property color color: "#77B753"
     property int numOfCheckpoints: 2
     property int state: 0
+    property bool active: true;
 
     height: 23
-    width: parent.width     //clip: true
+    width: parent.width
 
-    QtObject {
-        id: lines
-        property variant object: []
+    QtObject { id: lines; property variant object: [] }
+    QtObject { id: checkpoints; property variant object: [] }
+
+    onValueChanged: {
+        if ( !active ) { return; }
+
+        if (lines.object[state] != null) {
+            lines.object[state].value = value; 
+            checkpoints.object[state+1].active = value == maximum;
+        }
+
+        if ( state == numOfCheckpoints && checkpoints.object[state+1].active ) {
+            complete();
+        }
     }
 
-    QtObject {
-        id: checkpoints 
-        property variant object: []
-    }
+    signal complete();
 
+    onWidthChanged: { updateCheckpointsPosition(); }
+    Component.onCompleted: { createProgressLines(); createCheckpoints(); }
+    
+    // END only function
     
     function createProgressLines() {
         var sectors = progressbar.numOfCheckpoints+1;
@@ -52,6 +65,10 @@ Item {
 
     }
 
+    function stageComplete() {
+        if ( state != numOfCheckpoints ) state += 1;
+    }
+
     function createCheckpoints() {
         var comp = Qt.createComponent("Checkpoint.qml");
         var numOfCheckpoints = progressbar.numOfCheckpoints+1;
@@ -68,7 +85,9 @@ Item {
                 "deactiveSource": "oval_top_inactive@2x.png",
                 "active": i ? false : true,
             });
+            checkpoint.onActiveChanged.connect(stageComplete);
             checkpoints.object[i] = checkpoint;
+
         }
 
         if ( checkpoint == null ) {
@@ -86,12 +105,4 @@ Item {
         }
     }
 
-    onWidthChanged: { updateCheckpointsPosition(); }
-    onValueChanged: { 
-        if (lines.object[state] != null) {
-            lines.object[state].value = value; 
-        }
-        checkpoints.object[state+1].active = value == maximum;
-    }
-    Component.onCompleted: { createProgressLines(); createCheckpoints(); }
 }

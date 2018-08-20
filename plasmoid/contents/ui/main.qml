@@ -9,30 +9,67 @@ Rectangle {
     id: page
     width: 344
     height: 488
-    property real tmpvalue: 0.4
+
+    property real finishTime: 2
+    property real workTime: 10*10*1000
+    property real breakTime: 5*10*1000
+    property real timeOffset: 01*10*1000
+    property real timeMax: 100000
+
+    property bool progressbarLineActive: true;
+
+    states: [
+        State { 
+            name: "checkpoint"; 
+            PropertyChanges {
+                target: page;
+                progressbarLineActive: false;
+                timeMax: breakTime; 
+                timeOffset: breakTime;
+            } 
+        },
+        State { 
+            name: "normal";
+            PropertyChanges {
+                target: page;
+                progressbarLineActive: true;
+                timeMax: workTime;
+                timeOffset: workTime;
+            }
+        }
+    ]
+
+    onStateChanged: { console.log("page change state: " + page.state); }
+    onProgressbarLineActiveChanged: { 
+        console.log("lineProgressBar active: " + progressbarLineActive); 
+        lineProgressBar.active = progressbarLineActive;
+    }
 
     BackgroundCanvas {}
 
     CheckpointProgressBar {
-        value: parent.tmpvalue
+        id: lineProgressBar
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top 
         anchors.topMargin: 20
         anchors.leftMargin: 30
         anchors.rightMargin: 30
+        active: progressbarLineActive
+        onComplete: { console.log("lineProgressBar complete!"); }
     }
 
-    Slider {
-        height: 300
-        orientation: Qt.Vertical
-        y: 50
-        value: 0.4
-        onValueChanged: { parent.tmpvalue = value ; }
-    }
 
+    Timer {
+        id: timer
+        interval: 100
+        running: false 
+        repeat: true 
+        onTriggered: timeChanged()
+    }
 
     ProgressBarCircle {
+        id: circleProgressBar
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
@@ -40,7 +77,13 @@ Rectangle {
         arcWidth: 2
         arcColor: "#701919"
         textSize: 60
-        text: "12:00"
+        currentValue: 0.00
+        text: "25:00"
+        onComplete: { 
+            page.state == 'checkpoint' ? page.state = 'normal' : page.state = 'checkpoint';
+            button2.state = 'stoped'; 
+            timerStop(); 
+        }
     }
 
 
@@ -57,22 +100,33 @@ Rectangle {
             anchors.fill: parent
             source: "pauseButton.png"
             mipmap: true 
-
             Text {
+                id: text
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-
                 font.family: "Helvetica"
                 font.pointSize: 20
                 color: "white"
-
-                text: "Pause"
+                //text: "Start"
             }
+
         }
 
         MouseArea {
+            id: mouseArea
             anchors.fill: parent
-            onClicked: console.log("Hell wo")
+            onClicked: {
+                switch ( button2.state ) {
+                    case 'stoped':
+                        button2.state = 'running';
+                        timerStart();
+                        break;
+                    case 'running':
+                        button2.state = 'stoped';
+                        timerStop();
+                        break;
+                }
+            }
         }
 
         DropShadow {
@@ -84,6 +138,30 @@ Rectangle {
             color: "#80970E0E"
             source: buttonImage
         }
+        
+        states: [ 
+            State { name: "running"; PropertyChanges { target: text; text: "Reset" } },
+            State { name: "stoped" ; PropertyChanges { target: text; text: "Start" } }
+        ]
+        state: "stoped"
+        onStateChanged: { console.log("Button2 change state: " + state); }
+    }
+
+    function timerStart() { timer.running = true; }
+    function timerStop() { timer.running = false; }
+        
+    function timeChanged() {
+        var date = new Date(timeOffset);
+        var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+        var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+        var clock = minutes + ":" + seconds;
+        var percent = 1 - timeOffset/timeMax;
+
+        lineProgressBar.value = percent;
+        circleProgressBar.text = clock;
+        circleProgressBar.currentValue = percent;
+
+        timeOffset -= 100;
     }
 
 
@@ -98,9 +176,13 @@ Rectangle {
 
 
         Cell { cellColor: "red"     ; onClicked: console.log("debug: " + page.width + " " + page.height) } 
-
         Cell { cellColor: "white"   ; onClicked: console.log("debug: " + page.width + " " + page.height) } 
         Cell { cellColor: "black"   ; onClicked: console.log("debug: " + page.width + " ") } 
     }
 
+    Component.onCompleted: { 
+        timeMax = timeOffset = workTime = plasmoid.configuration.workTime; 
+        breakTime = plasmoid.configuration.breakTime;
+        state = "normal";
+    }
 }

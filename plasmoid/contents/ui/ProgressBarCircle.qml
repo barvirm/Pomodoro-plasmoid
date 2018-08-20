@@ -16,11 +16,12 @@ Canvas {
     property real radius: (Math.min(canvas.width, canvas.height) / 2) - arcWidth 
 
     property real minimumValue: 0
-    property real maximumValue: 100
-    property real currentValue: 99
+    property real maximumValue: 1
+    property real currentValue: 0.99
     property color textColor: "white"
     property int textSize: 14
-    //property 
+
+    signal complete()
 
     // this is the angle that splits the circle in two arcs
     // first arc is drawn from 0 radians to angle radians
@@ -36,10 +37,11 @@ Canvas {
     onArcColorChanged: requestPaint()
     onMinimumValueChanged: requestPaint()
     onMaximumValueChanged: requestPaint()
-    onCurrentValueChanged: requestPaint()
+    onCurrentValueChanged: { if ( currentValue == maximumValue ) complete(); requestPaint();}
 
     onPaint: {
         var ctx = getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.beginPath();
         ctx.lineWidth = canvas.arcWidth;
@@ -50,8 +52,6 @@ Canvas {
                 canvas.angleOffset,
                 canvas.angleOffset + canvas.angle);
         ctx.stroke();
-
-        ctx.restore();
     }
 
     Text {
