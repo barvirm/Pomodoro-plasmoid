@@ -7,9 +7,9 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 
 Rectangle {
     id: page
-    width: 350
-    height: 480
-    property real tmpvalue: 50
+    width: 344
+    height: 488
+    property real tmpvalue: 0.4
 
     BackgroundCanvas {}
 
@@ -17,18 +17,18 @@ Rectangle {
         value: parent.tmpvalue
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.leftMargin:  20
-        anchors.rightMargin: 20
+        anchors.top: parent.top 
+        anchors.topMargin: 20
+        anchors.leftMargin: 30
+        anchors.rightMargin: 30
     }
 
     Slider {
         height: 300
         orientation: Qt.Vertical
-        value: 0.5
-        onValueChanged: {
-            parent.tmpvalue = value * 100;
-            console.log(value*100);
-        }
+        y: 50
+        value: 0.4
+        onValueChanged: { parent.tmpvalue = value ; }
     }
 
 
@@ -55,7 +55,7 @@ Rectangle {
         Image {
             id: buttonImage
             anchors.fill: parent
-            source: "button2.png"
+            source: "pauseButton.png"
             mipmap: true 
 
             Text {

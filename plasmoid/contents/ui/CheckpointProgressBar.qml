@@ -3,78 +3,95 @@ import QtQuick 2.09
 Item {
     id: progressbar
 
-    property int minimum: 0
-    property int maximum: 100
-    property int value: 50
+    property real minimum: 0
+    property real maximum: 1
+    property real value: 0.5
     property color color: "#77B753"
     property int numOfCheckpoints: 2
+    property int state: 0
 
-    width: parent.width; height: 23
-    //clip: true
+    height: 23
+    width: parent.width     //clip: true
 
-
-    Rectangle { 
-        width: (progressbar.width * (value - minimum)) / (maximum - minimum)
-        height: 4
-        radius: 23
-        anchors.verticalCenter: parent.verticalCenter
-        color: "red"
+    QtObject {
+        id: lines
+        property variant object: []
     }
 
-    Circle {
-        id: circleFirst
-        diameter: parent.height
-        anchors.left: parent.left
-        anchors.leftMargin: -diameter/2 
-    }
-    Circle {
-        id: circleLast
-        diameter: parent.height
-        anchors.right: parent.right
-        anchors.rightMargin: -diameter/2 
+    QtObject {
+        id: checkpoints 
+        property variant object: []
     }
 
-    Component.onCompleted: {
-        var comp = Qt.createComponent("Circle.qml");
-        // Start from "checkpoint" and end in "checkpoint => magic 2"
-        var checkpoints = progressbar.numOfCheckpoints;
-        var offset = progressbar.width / (checkpoints+1);
-        for (var it = 1; it < (checkpoints+1) ; it++) {
-            var ids = "circle" + it;
-            var circle = comp.createObject(parent, {
-                "id": ids,
-                "diameter": height,
-                "anchors.left": anchors.left,
-                "anchors.leftMargin": 5 + offset*it,
+    
+    function createProgressLines() {
+        var sectors = progressbar.numOfCheckpoints+1;
+        var comp = Qt.createComponent("SliderWithoutHandle.qml");
+        //comp.onCompleted.connect(report);
+        var checkpointWidth = progressbar.height;
+        // width - checkpoint -> fit to size 
+        // placing form left so -> last == anchors.right
+        // end point must be on start next checkpoint -> Checkpoint shorter
+        var sliderSize = ( progressbar.width - checkpointWidth) / sectors - checkpointWidth;
+
+        for ( var i = 0; i < sectors; i++) {
+            var leftMargin = checkpointWidth + ((progressbar.width - checkpointWidth)/sectors)*i;
+            var line = comp.createObject(parent, {
+                "anchors.verticalCenter": progressbar.verticalCenter,
+                "anchors.left": progressbar.left,
+                "anchors.leftMargin": leftMargin,
+                "size":sliderSize,
+                "value": 0.0,
             });
+            lines.object[i] = line;
         }
 
-        if ( circle == null ) {
+        if ( line == null ) {
+            console.log("Error with creation of object LineSector")
+        }
+
+    }
+
+    function createCheckpoints() {
+        var comp = Qt.createComponent("Checkpoint.qml");
+        var numOfCheckpoints = progressbar.numOfCheckpoints+1;
+        var w = progressbar.width - progressbar.height;
+        for (var i = 0; i < (numOfCheckpoints+1); i++) {
+            var leftMargin = w/(numOfCheckpoints) * i;
+            var checkpoint = comp.createObject(parent, {
+                "width": progressbar.height,
+                "height": progressbar.height,
+                "anchors.left": progressbar.left,
+                "anchors.leftMargin": leftMargin,
+                "anchors.verticalCenter": progressbar.verticalCenter,
+                "activeSource": "oval_top@2x.png",
+                "deactiveSource": "oval_top_inactive@2x.png",
+                "active": i ? false : true,
+            });
+            checkpoints.object[i] = checkpoint;
+        }
+
+        if ( checkpoint == null ) {
             console.log("Error with creation of object Circle")
         }
     }
 
-    onValueChanged: {
 
+    function updateCheckpointsPosition() {
+        var w = progressbar.width - progressbar.height;
+        var numOfCheckpoints = progressbar.numOfCheckpoints+1;
+        for(var i = 0; i < checkpoints.object.length; i++) {
+            var leftMargin = w/(numOfCheckpoints) * (i);
+            progressbar.ids[i].anchors.leftMargin = leftMargin;
+        }
     }
 
-
-
-    /*
-    Rectangle { 
-        anchors.left: parent.left
-        width: 23
-        height: 23
-        radius: 23
-        color: "blue"
+    onWidthChanged: { updateCheckpointsPosition(); }
+    onValueChanged: { 
+        if (lines.object[state] != null) {
+            lines.object[state].value = value; 
+        }
+        checkpoints.object[state+1].active = value == maximum;
     }
-
-    Rectangle { 
-        anchors.right: parent.right
-        width: 23
-        height: 23
-        radius: 23
-        color: "blue"
-    }
-    */
+    Component.onCompleted: { createProgressLines(); createCheckpoints(); }
 }
