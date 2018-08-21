@@ -10,40 +10,48 @@ Rectangle {
     width: 344
     height: 488
 
-    property real finishTime: 2
-    property real workTime: 10*10*1000
-    property real breakTime: 5*10*1000
-    property real timeOffset: 01*10*1000
-    property real timeMax: 100000
+    property real workTime: plasmoid.configuration.workTime
+    property real breakTime: plasmoid.configuration.breakTime
+    property real timeOffset:plasmoid.configuration.workTime 
+    property real timeMax: plasmoid.configuration.workTime
 
-    property bool progressbarLineActive: true;
+    PlasmaCore.DataSource { id: notificationSource; engine: "notifications"; connectedSources: "org.freedesktop.Notifications" }
 
     states: [
         State { 
             name: "checkpoint"; 
             PropertyChanges {
                 target: page;
-                progressbarLineActive: false;
                 timeMax: breakTime; 
                 timeOffset: breakTime;
             } 
+            PropertyChanges {
+                target: lineProgressBar;
+                active: false;
+            }
         },
         State { 
             name: "normal";
             PropertyChanges {
                 target: page;
-                progressbarLineActive: true;
                 timeMax: workTime;
                 timeOffset: workTime;
             }
+            PropertyChanges {
+                target: lineProgressBar;
+                active: true;
+            }
+        },
+        State {
+            name: "finish";
+            PropertyChanges {
+                target: button2;
+                state: 'finish';
+            }
         }
     ]
-
+    state: 'normal'
     onStateChanged: { console.log("page change state: " + page.state); }
-    onProgressbarLineActiveChanged: { 
-        console.log("lineProgressBar active: " + progressbarLineActive); 
-        lineProgressBar.active = progressbarLineActive;
-    }
 
     BackgroundCanvas {}
 
@@ -55,14 +63,17 @@ Rectangle {
         anchors.topMargin: 20
         anchors.leftMargin: 30
         anchors.rightMargin: 30
-        active: progressbarLineActive
-        onComplete: { console.log("lineProgressBar complete!"); }
+        active: true
+        onComplete: { 
+            page.state = 'finish';
+            console.log("lineProgressBar complete!"); 
+        }
     }
 
 
     Timer {
         id: timer
-        interval: 100
+        interval: 50
         running: false 
         repeat: true 
         onTriggered: timeChanged()
@@ -80,8 +91,10 @@ Rectangle {
         currentValue: 0.00
         text: "25:00"
         onComplete: { 
-            page.state == 'checkpoint' ? page.state = 'normal' : page.state = 'checkpoint';
-            button2.state = 'stoped'; 
+            if ( page.state != 'finish' ) {
+                page.state == 'checkpoint' ? page.state = 'normal' : page.state = 'checkpoint';
+                button2.state = 'stoped'; 
+            }
             timerStop(); 
         }
     }
@@ -125,6 +138,12 @@ Rectangle {
                         button2.state = 'stoped';
                         timerStop();
                         break;
+                    case 'finish':
+                        lineProgressBar.reset();
+                        lineProgressBar.debug();
+                        button2.state = 'stoped'
+                        timerStop();
+                        break;
                 }
             }
         }
@@ -141,10 +160,28 @@ Rectangle {
         
         states: [ 
             State { name: "running"; PropertyChanges { target: text; text: "Reset" } },
+            State { name: "finish";  PropertyChanges { target: text; text: "Finish" } },
             State { name: "stoped" ; PropertyChanges { target: text; text: "Start" } }
         ]
         state: "stoped"
-        onStateChanged: { console.log("Button2 change state: " + state); }
+        onStateChanged: { 
+            //createNotification("Hello world", "How are you", null);
+            console.log("Button2 change state: " + state); 
+        }
+    }
+    
+    function createNotification(title, text, icon) {
+        var service = notificationSource.serviceForSource("notification");
+        var operation = service.operationDescription("createNotification");
+
+        operation.appName = page.appName;
+        operation["appIcon"] = plasmoid.icon;
+        operation.summary = title;
+        operation["body"] = text;
+        // TODO: is this useful?
+        operation["timeout"] = 100;
+
+        service.startOperationCall(operation);
     }
 
     function timerStart() { timer.running = true; }
@@ -161,10 +198,8 @@ Rectangle {
         circleProgressBar.text = clock;
         circleProgressBar.currentValue = percent;
 
-        timeOffset -= 100;
+        timeOffset -= 50;
     }
-
-
 
      Grid {
         id: colorPicker
@@ -178,11 +213,5 @@ Rectangle {
         Cell { cellColor: "red"     ; onClicked: console.log("debug: " + page.width + " " + page.height) } 
         Cell { cellColor: "white"   ; onClicked: console.log("debug: " + page.width + " " + page.height) } 
         Cell { cellColor: "black"   ; onClicked: console.log("debug: " + page.width + " ") } 
-    }
-
-    Component.onCompleted: { 
-        timeMax = timeOffset = workTime = plasmoid.configuration.workTime; 
-        breakTime = plasmoid.configuration.breakTime;
-        state = "normal";
     }
 }

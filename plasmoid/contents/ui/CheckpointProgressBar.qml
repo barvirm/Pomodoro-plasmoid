@@ -11,8 +11,24 @@ Item {
     property int state: 0
     property bool active: true;
 
+    function reset() {
+        for (var i = 0; i < lines.object.length; i++) { lines.object[i].value = 0; }
+        for (var i = 1; i < checkpoints.object.length; i++) { checkpoints.object[i].active = false; }
+        state = 0;
+        value = minimum;
+    }
+
     height: 23
     width: parent.width
+    
+    function debug() {
+        console.log("minimum:          " + progressbar.minimum        );
+        console.log("maximum:          " + progressbar.maximum        );
+        console.log("value:            " + progressbar.value          );
+        console.log("numOfCheckpoints: " + progressbar.numOfCheckpoints);
+        console.log("state:            " + progressbar.state          );
+        console.log("active:           " + progressbar.active         );
+    }
 
     QtObject { id: lines; property variant object: [] }
     QtObject { id: checkpoints; property variant object: [] }
@@ -24,11 +40,9 @@ Item {
             lines.object[state].value = value; 
             checkpoints.object[state+1].active = value == maximum;
         }
-
-        if ( state == numOfCheckpoints && checkpoints.object[state+1].active ) {
-            complete();
-        }
     }
+
+
 
     signal complete();
 
@@ -66,7 +80,7 @@ Item {
     }
 
     function stageComplete() {
-        if ( state != numOfCheckpoints ) state += 1;
+        state == numOfCheckpoints ? complete() : state++;
     }
 
     function createCheckpoints() {
@@ -76,6 +90,7 @@ Item {
         for (var i = 0; i < (numOfCheckpoints+1); i++) {
             var leftMargin = w/(numOfCheckpoints) * i;
             var checkpoint = comp.createObject(parent, {
+                "dn": "cp_"+i,
                 "width": progressbar.height,
                 "height": progressbar.height,
                 "anchors.left": progressbar.left,

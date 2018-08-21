@@ -8,11 +8,11 @@
     <entry name="workTime" type="Int">
       <label>work time</label>
       <!--<default>1500000</default> -->
-      <default>5000</default>
+      <default>1000</default>
     </entry>
     <entry name="breakTime" type="Int">
       <label>break time</label>
-      <default>2000</default>
+      <default>1000</default>
     </entry>
   </group>
 </kcfg> 
