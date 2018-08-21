@@ -115,6 +115,7 @@ Rectangle {
                 switch ( button2.state ) {
                     case 'stoped':
                         button2.state = 'running';
+                        lineProgressBar.setCheckpoint(0,true);
                         timerStart();
                         break;
                     case 'running':

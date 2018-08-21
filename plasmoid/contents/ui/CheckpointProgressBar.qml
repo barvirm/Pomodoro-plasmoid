@@ -11,7 +11,7 @@ Item {
     property real value: 0.5
     property color color: "#77B753"
     property int numOfCheckpoints: 2
-    property int state: 0
+    property int state: -1
     property bool active: true;
 
     signal complete();
@@ -21,7 +21,6 @@ Item {
 
     onValueChanged: {
         if ( !active ) { return; }
-
         if (lines.object[state] != null) {
             lines.object[state].value = value; 
             checkpoints.object[state+1].active = value == maximum;
@@ -36,6 +35,10 @@ Item {
     
     // END only function
 
+    function setCheckpoint(index, bool) {
+        checkpoints.object[index].active = bool;
+    }
+
     function debug() {
         console.log("minimum:          " + progressbar.minimum        );
         console.log("maximum:          " + progressbar.maximum        );
@@ -47,8 +50,8 @@ Item {
 
     function reset() {
         for (var i = 0; i < lines.object.length; i++) { lines.object[i].value = 0; }
-        for (var i = 1; i < checkpoints.object.length; i++) { checkpoints.object[i].active = false; }
-        state = 0;
+        for (var i = 0; i < checkpoints.object.length; i++) { checkpoints.object[i].active = false; }
+        state = -1;
         value = minimum;
     }
     
@@ -99,7 +102,7 @@ Item {
                 "anchors.verticalCenter": progressbar.verticalCenter,
                 "activeSource": "oval_top@2x.png",
                 "deactiveSource": "oval_top_inactive@2x.png",
-                "active": i ? false : true,
+                //"active": i ? false : true,
             });
             checkpoint.onActiveChanged.connect(stageComplete);
             checkpoints.object[i] = checkpoint;
@@ -120,5 +123,4 @@ Item {
             progressbar.ids[i].anchors.leftMargin = leftMargin;
         }
     }
-
 }
