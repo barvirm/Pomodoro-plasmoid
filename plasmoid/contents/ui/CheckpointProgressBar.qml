@@ -3,6 +3,9 @@ import QtQuick 2.09
 Item {
     id: progressbar
 
+    height: 23
+    width: parent.width
+
     property real minimum: 0
     property real maximum: 1
     property real value: 0.5
@@ -11,24 +14,7 @@ Item {
     property int state: 0
     property bool active: true;
 
-    function reset() {
-        for (var i = 0; i < lines.object.length; i++) { lines.object[i].value = 0; }
-        for (var i = 1; i < checkpoints.object.length; i++) { checkpoints.object[i].active = false; }
-        state = 0;
-        value = minimum;
-    }
-
-    height: 23
-    width: parent.width
-    
-    function debug() {
-        console.log("minimum:          " + progressbar.minimum        );
-        console.log("maximum:          " + progressbar.maximum        );
-        console.log("value:            " + progressbar.value          );
-        console.log("numOfCheckpoints: " + progressbar.numOfCheckpoints);
-        console.log("state:            " + progressbar.state          );
-        console.log("active:           " + progressbar.active         );
-    }
+    signal complete();
 
     QtObject { id: lines; property variant object: [] }
     QtObject { id: checkpoints; property variant object: [] }
@@ -44,12 +30,27 @@ Item {
 
 
 
-    signal complete();
 
     onWidthChanged: { updateCheckpointsPosition(); }
     Component.onCompleted: { createProgressLines(); createCheckpoints(); }
     
     // END only function
+
+    function debug() {
+        console.log("minimum:          " + progressbar.minimum        );
+        console.log("maximum:          " + progressbar.maximum        );
+        console.log("value:            " + progressbar.value          );
+        console.log("numOfCheckpoints: " + progressbar.numOfCheckpoints);
+        console.log("state:            " + progressbar.state          );
+        console.log("active:           " + progressbar.active         );
+    }
+
+    function reset() {
+        for (var i = 0; i < lines.object.length; i++) { lines.object[i].value = 0; }
+        for (var i = 1; i < checkpoints.object.length; i++) { checkpoints.object[i].active = false; }
+        state = 0;
+        value = minimum;
+    }
     
     function createProgressLines() {
         var sectors = progressbar.numOfCheckpoints+1;

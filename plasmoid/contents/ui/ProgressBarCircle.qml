@@ -6,6 +6,14 @@ Canvas {
     height: 240
     antialiasing: true
     smooth: true
+
+/*
+    Rectangle {
+        width: parent.width 
+        height: parent.height 
+        color: "white"
+    }
+    */
     
 
     property color arcColor: "lightblue"

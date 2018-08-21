@@ -20,34 +20,17 @@ Rectangle {
     states: [
         State { 
             name: "checkpoint"; 
-            PropertyChanges {
-                target: page;
-                timeMax: breakTime; 
-                timeOffset: breakTime;
-            } 
-            PropertyChanges {
-                target: lineProgressBar;
-                active: false;
-            }
+            PropertyChanges { target: page; timeMax: breakTime; timeOffset: breakTime; } 
+            PropertyChanges { target: lineProgressBar; active: false; }
         },
         State { 
             name: "normal";
-            PropertyChanges {
-                target: page;
-                timeMax: workTime;
-                timeOffset: workTime;
-            }
-            PropertyChanges {
-                target: lineProgressBar;
-                active: true;
-            }
+            PropertyChanges { target: page; timeMax: workTime; timeOffset: workTime; }
+            PropertyChanges { target: lineProgressBar; active: true; }
         },
         State {
             name: "finish";
-            PropertyChanges {
-                target: button2;
-                state: 'finish';
-            }
+            PropertyChanges { target: button2; state: 'finish'; }
         }
     ]
     state: 'normal'
@@ -141,8 +124,8 @@ Rectangle {
                     case 'finish':
                         lineProgressBar.reset();
                         lineProgressBar.debug();
-                        button2.state = 'stoped'
-                        timerStop();
+                        page.state = 'normal';
+                        button2.state = 'stoped';
                         break;
                 }
             }
@@ -165,24 +148,10 @@ Rectangle {
         ]
         state: "stoped"
         onStateChanged: { 
-            //createNotification("Hello world", "How are you", null);
             console.log("Button2 change state: " + state); 
         }
     }
     
-    function createNotification(title, text, icon) {
-        var service = notificationSource.serviceForSource("notification");
-        var operation = service.operationDescription("createNotification");
-
-        operation.appName = page.appName;
-        operation["appIcon"] = plasmoid.icon;
-        operation.summary = title;
-        operation["body"] = text;
-        // TODO: is this useful?
-        operation["timeout"] = 100;
-
-        service.startOperationCall(operation);
-    }
 
     function timerStart() { timer.running = true; }
     function timerStop() { timer.running = false; }
@@ -199,6 +168,20 @@ Rectangle {
         circleProgressBar.currentValue = percent;
 
         timeOffset -= 50;
+    }
+
+    function createNotification(title, text, icon) {
+        var service = notificationSource.serviceForSource("notification");
+        var operation = service.operationDescription("createNotification");
+
+        operation.appName = page.appName;
+        operation["appIcon"] = plasmoid.icon;
+        operation.summary = title;
+        operation["body"] = text;
+        // TODO: is this useful?
+        operation["timeout"] = 100;
+
+        service.startOperationCall(operation);
     }
 
      Grid {
