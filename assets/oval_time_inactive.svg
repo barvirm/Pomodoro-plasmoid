@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>Path</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.08">
+        <g id="Widget" transform="translate(-221.000000, -189.000000)" fill="#FFFFFF" fill-rule="nonzero">
+            <g id="Circles" transform="translate(82.000000, 171.000000)">
+                <circle id="Path" cx="149" cy="28" r="10"></circle>
+            </g>
+        </g>
+    </g>
+</svg>

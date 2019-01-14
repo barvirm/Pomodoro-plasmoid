@@ -184,18 +184,4 @@ Rectangle {
 
         service.startOperationCall(operation);
     }
-
-     Grid {
-        id: colorPicker
-        x: 4; anchors.bottom: page.bottom
-        anchors.bottomMargin: 4
-        rows: 2
-        columns: 3
-        spacing: 3
-
-
-        Cell { cellColor: "red"     ; onClicked: console.log("debug: " + page.width + " " + page.height) } 
-        Cell { cellColor: "white"   ; onClicked: console.log("debug: " + page.width + " " + page.height) } 
-        Cell { cellColor: "black"   ; onClicked: console.log("debug: " + page.width + " ") } 
-    }
 }

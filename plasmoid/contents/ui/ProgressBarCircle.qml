@@ -7,15 +7,7 @@ Canvas {
     antialiasing: true
     smooth: true
 
-/*
-    Rectangle {
-        width: parent.width 
-        height: parent.height 
-        color: "white"
-    }
-    */
     
-
     property color arcColor: "lightblue"
     property int arcWidth: 2
 

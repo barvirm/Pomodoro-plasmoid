@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="635px" height="904px" viewBox="0 0 635 904" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>Widget</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="0%" y1="90.4353073%" x2="100%" y2="74.7029205%" id="linearGradient-1">
+            <stop stop-color="#150916" offset="0%"></stop>
+            <stop stop-color="#130C19" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-2" x="0" y="0" width="635" height="904" rx="12"></rect>
+        <linearGradient x1="3.78062539%" y1="50%" x2="94.6814895%" y2="17.5834771%" id="linearGradient-4">
+            <stop stop-color="#1D1222" offset="0%"></stop>
+            <stop stop-color="#191A2A" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Widget">
+            <g>
+                <mask id="mask-3" fill="white">
+                    <use xlink:href="#path-2"></use>
+                </mask>
+                <use id="Rectangle" fill="url(#linearGradient-1)" fill-rule="nonzero" xlink:href="#path-2"></use>
+                <polygon id="Path-2" fill="url(#linearGradient-4)" fill-rule="nonzero" mask="url(#mask-3)" points="-27 676 671 192 671 -38 -27 -38"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>
